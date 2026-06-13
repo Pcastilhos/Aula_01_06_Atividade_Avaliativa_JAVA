@@ -15,11 +15,13 @@ public class SistemaAgencia {
     } else {
         for (Cliente cliente : clientes) {
             cliente.apresentar();
+            cliente.verificarMaioridade();
             System.out.println("-------------------");
         }
     }
     }
      public void cadastrarPacote(Cliente cliente, PacoteViagem pacote) {
+        pacote.cliente = cliente;
         cliente.adicionarPacote(pacote);
     }
     

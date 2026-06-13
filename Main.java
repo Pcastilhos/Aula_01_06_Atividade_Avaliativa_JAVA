@@ -8,13 +8,13 @@ public class Main {
         int opcao = 0;
 
         while (opcao != 5) {
-            System.out.println("\n=== MENU PRINCIPAL ===");
+            System.out.println("\n=== MUNDO FACIL VIAGENS ===");
             System.out.println("1 - Cadastrar cliente");
             System.out.println("2 - Cadastrar pacote para cliente");
             System.out.println("3 - Listar clientes");
             System.out.println("4 - Listar pacotes de um cliente");
             System.out.println("5 - Sair");
-            System.out.print("Escolha uma opção: ");
+            System.out.print("Escolha uma opcao: ");
             opcao = scanner.nextInt();
             scanner.nextLine();
 
@@ -31,16 +31,9 @@ public class Main {
                 cliente.idade = scanner.nextInt();
                 scanner.nextLine();
 
-                System.out.print("Telefone: ");
-                cliente.telefone = scanner.nextLine();
-
                 System.out.print("CEP: ");
                 cliente.cep = scanner.nextLine();
-
-                CepService cepService = new CepService();
-                String retorno = cepService.consultarCep(cliente.cep);
-                cliente.cidade = extrairCampo(retorno, "localidade");
-                //cliente.estado = extrairCampo(retorno, "estado");
+                cliente.preencherEndereco();
 
                 sistema.cadastrarCliente(cliente);
                 System.out.println("Cliente cadastrado com sucesso!");
@@ -59,35 +52,61 @@ public class Main {
 
                     Cliente clienteSelecionado = sistema.clientes.get(indiceCliente - 1);
                     PacoteViagem pacote = new PacoteViagem();
+                    pacote.cliente = clienteSelecionado;
 
                     System.out.print("Destino: ");
                     pacote.destino = scanner.nextLine();
 
-                    System.out.print("Data de início: ");
+                        System.out.print("Data de inicio (dd/MM/yyyy): ");
                     pacote.dataInicio = scanner.nextLine();
-
-                    System.out.print("Data de fim: ");
-                    pacote.dataFim = scanner.nextLine();
 
                     System.out.print("Duração em dias (7, 15 ou 30): ");
                     pacote.duracaoDias = scanner.nextInt();
                     scanner.nextLine();
 
-                    System.out.print("É internacional? \n 1 - Sim \n 2 - Não): ");
-                    int ehInternacional;
-                    ehInternacional = scanner.nextInt();
-                    if (ehInternacional == 1 ){
-                        pacote.internacional = true;
-                    }
-                    else {
-                        pacote.internacional = false;
-                    }
-                    //pacote.internacional = scanner.nextBoolean();
-                    scanner.nextLine();
+                    if (pacote.duracaoDias != 7 && pacote.duracaoDias != 15 && pacote.duracaoDias != 30) {
+                        System.out.println("Duração inválida.");
+                    } else {
+                        pacote.calcularDataFim();
 
-                    sistema.cadastrarPacote(clienteSelecionado, pacote);
-                    System.out.println("Pacote cadastrado com sucesso!");
+                        System.out.print("É internacional?\n1 - Sim\n2 - Não: ");
+                        int ehInternacional = scanner.nextInt();
+                        scanner.nextLine();
 
+                        if (ehInternacional == 1) {
+                            pacote.internacional = true;
+                        } else {
+                            pacote.internacional = false;
+                        }
+
+                        System.out.print("Quantidade de acompanhantes (0 a 4): ");
+                        int quantidadeAcompanhantes = scanner.nextInt();
+                        scanner.nextLine();
+
+                        if (quantidadeAcompanhantes < 0) {
+                            quantidadeAcompanhantes = 0;
+                        }
+
+                        if (quantidadeAcompanhantes > 4) {
+                            quantidadeAcompanhantes = 4;
+                        }
+
+                        for (int i = 0; i < quantidadeAcompanhantes; i++) {
+                            Acompanhante acompanhante = new Acompanhante();
+
+                            System.out.print("Nome do acompanhante " + (i + 1) + ": ");
+                            acompanhante.nome = scanner.nextLine();
+
+                            System.out.print("Idade do acompanhante " + (i + 1) + ": ");
+                            acompanhante.idade = scanner.nextInt();
+                            scanner.nextLine();
+
+                            pacote.adicionarAcompanhante(acompanhante);
+                        }
+
+                        sistema.cadastrarPacote(clienteSelecionado, pacote);
+                        System.out.println("Pacote cadastrado com sucesso!");
+                    }
                 }
 
             } else if (opcao == 3) {
@@ -118,19 +137,5 @@ public class Main {
         }
 
         scanner.close();
-    }
-
-    public static String extrairCampo(String json, String campo) {
-        String procura = "\"" + campo + "\": \"";
-        int inicio = json.indexOf(procura);
-
-        if (inicio == -1) {
-            return "";
-        }
-
-        inicio = inicio + procura.length();
-        int fim = json.indexOf("\"", inicio);
-
-        return json.substring(inicio, fim);
     }
 }

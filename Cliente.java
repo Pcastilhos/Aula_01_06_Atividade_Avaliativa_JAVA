@@ -1,61 +1,76 @@
-import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Cliente extends Pessoa {
-    public String telefone;
     public String cep;
     public String endereco;
     public String cidade;
-    public String continuar;
+    public String estado;
+    public ArrayList<PacoteViagem> pacotes = new ArrayList<>();
 
-    public Cliente() {}
-
-    public static void main(String[] args) {
-
-        Scanner scanner = new Scanner(System.in);
-        Cliente c1 = new Cliente();
-        CepService cepService = new CepService(); // ← instância da classe que tem consultarCep()
-
-        do {
-            System.out.print("Informe nome do cliente: ");
-            c1.nome = scanner.nextLine();
-
-            System.out.print("Informe idade do cliente: ");
-            c1.idade = scanner.nextInt();
-            scanner.nextLine();
-
-            System.out.print("Informe CPF do cliente: ");
-            c1.cpf = scanner.nextLine();
-
-            System.out.print("Informe telefone do cliente: ");
-            c1.telefone = scanner.nextLine();
-
-            // 1️⃣ Pede o CEP ao usuário e armazena em c1.cep
-            System.out.print("Informe o CEP do cliente: ");
-            c1.cep = scanner.nextLine();
-
-            // 2️⃣ Chama consultarCep() passando o cep, e CAPTURA o retorno
-            c1.endereco = cepService.consultarCep(c1.cep);
-
-            // 3️⃣ Exibe o endereço retornado pela API
-            System.out.println("Endereço encontrado: " + c1.endereco);
-
-            System.out.print("Continuar cadastro? [S/N]: ");
-            c1.continuar = scanner.nextLine();
-
-        } while (c1.continuar.equalsIgnoreCase("S")); // ← correção importante aqui!
+    public void apresentar() {
+        System.out.println("Nome: " + nome);
+        System.out.println("CPF: " + cpf);
+        System.out.println("Idade: " + idade);
+        System.out.println("CEP: " + cep);
+        System.out.println("Endereço: " + endereco);
+        System.out.println("Cidade: " + cidade);
+        System.out.println("Estado: " + estado);
     }
 
-    private static class CepService {
+    public void verificarMaioridade() {
+        if (idade >= 18) {
+            System.out.println("Cliente maior de idade.");
+        } else {
+            System.out.println("Cliente menor de idade.");
+        }
+    }
 
-        public CepService() {
+    public void preencherEndereco() {
+        CepService cepService = new CepService();
+        String dadosCep = cepService.consultarCep(cep);
+        endereco = dadosCep;
+        cidade = extrairCampo(dadosCep, "localidade");
+        estado = extrairCampo(dadosCep, "uf");
+
+        if (cidade.equals("")) {
+            cidade = "Não informada";
         }
 
-        public String consultarCep(String cep) {
-            // implementação simples de exemplo: em um caso real faria chamada a uma API
-            if (cep == null || cep.isEmpty()) {
-                return "CEP inválido";
+        if (estado.equals("")) {
+            estado = "Não informado";
+        }
+    }
+
+    public void adicionarPacote(PacoteViagem pacote) {
+        pacotes.add(pacote);
+    }
+
+    public void listarPacotes() {
+        if (pacotes.size() == 0) {
+            System.out.println("Nenhum pacote cadastrado para este cliente.");
+        } else {
+            for (PacoteViagem pacote : pacotes) {
+                pacote.apresentar();
+                System.out.println("-------------------");
             }
-            return "Endereço para CEP " + cep;
         }
+    }
+
+    public String extrairCampo(String json, String campo) {
+        String procura = "\"" + campo + "\": \"";
+        int inicio = json.indexOf(procura);
+
+        if (inicio == -1) {
+            return "";
+        }
+
+        inicio = inicio + procura.length();
+        int fim = json.indexOf("\"", inicio);
+
+        if (fim == -1) {
+            return "";
+        }
+
+        return json.substring(inicio, fim);
     }
 }
