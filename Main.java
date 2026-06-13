@@ -40,7 +40,7 @@ public class Main {
                 CepService cepService = new CepService();
                 String retorno = cepService.consultarCep(cliente.cep);
                 cliente.cidade = extrairCampo(retorno, "localidade");
-                cliente.estado = extrairCampo(retorno, "estado");
+                //cliente.estado = extrairCampo(retorno, "estado");
 
                 sistema.cadastrarCliente(cliente);
                 System.out.println("Cliente cadastrado com sucesso!");
