@@ -70,8 +70,9 @@ public class PacoteViagem {
             temperatura = temperaturaConsultada;
         }
 
-        System.out.println("Clima do destino: " + clima);
-        System.out.println("Temperatura: " + temperatura);
+        String climaSanitizado = sanitizeClimaString(clima);
+        System.out.println("Clima do destino: " + climaSanitizado);
+        System.out.println("Temperatura: " + String.format("%.1f", temperatura));
 
         if (temperatura < 0) {
             System.out.println("Alerta: destino muito frio. Recomenda-se levar roupas térmicas.");
@@ -94,6 +95,14 @@ public class PacoteViagem {
         }
 
         return 0.0;
+    }
+
+    public String sanitizeClimaString(String s) {
+        if (s == null) return "";
+        // Remove emojis and other symbols, keep letters, numbers, punctuation and degree symbol
+        String cleaned = s.replaceAll("[^\\p{L}\\p{N}\\s:\\-+.,°º%() ]", "");
+        cleaned = cleaned.replaceAll("\\s{2,}", " ").trim();
+        return cleaned;
     }
 
     public void apresentar() {
